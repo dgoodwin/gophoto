@@ -56,6 +56,10 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", webui.Index)
-	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
+
+	// If nothing else has matched attempt to serve a static file:
+	// TODO: Point to a proper location for the data files? Use env var or config.
+	r.PathPrefix("/").Handler(http.FileServer(
+		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
