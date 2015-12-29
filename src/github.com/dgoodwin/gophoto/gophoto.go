@@ -56,5 +56,6 @@ func main() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", webui.Index)
+	r.PathPrefix("/").Handler(http.FileServer(http.Dir("./public/")))
 	log.Fatal(http.ListenAndServe(":8080", r))
 }
