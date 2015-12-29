@@ -1,4 +1,4 @@
-package webui
+package handlers
 
 import (
 	"fmt"

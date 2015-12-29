@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/dgoodwin/gophoto/webui"
+	"github.com/dgoodwin/gophoto/handlers"
 	"github.com/gorilla/mux"
 	"image"
 	_ "image/jpeg"
