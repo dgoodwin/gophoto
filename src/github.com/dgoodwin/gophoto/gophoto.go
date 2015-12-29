@@ -2,14 +2,18 @@ package main
 
 import (
 	"fmt"
+	"github.com/dgoodwin/gophoto/webui"
+	"github.com/gorilla/mux"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
+	"log"
+	"net/http"
 	"os"
 	"path/filepath"
 )
 
-func visit(path string, f os.FileInfo, err error) error {
+func checkFile(path string, f os.FileInfo, err error) error {
 	if !f.IsDir() && isImage(path) {
 		fmt.Printf("Visited: %s\n", path)
 		//fmt.Printf("  %d %s %s\n", f.Size(), f.Mode(), f.IsDir())
@@ -47,6 +51,10 @@ func getImageDimension(imagePath string) (int, int) {
 func main() {
 	fmt.Printf("Hello, world.\n")
 	importDir := "/home/dev/Photos/2015/11"
-	err := filepath.Walk(importDir, visit)
+	err := filepath.Walk(importDir, checkFile)
 	fmt.Printf("Walk returned: %v\n", err)
+
+	r := mux.NewRouter()
+	r.HandleFunc("/", webui.Index)
+	log.Fatal(http.ListenAndServe(":8080", r))
 }
