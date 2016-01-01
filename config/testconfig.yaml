@@ -1,0 +1,4 @@
+storage:
+    backend: fileSystem
+    path: /home/dev/gophotodata
+assetsPath: /home/dev/go/src/github.com/dgoodwin/gophoto/public
