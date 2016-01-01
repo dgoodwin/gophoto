@@ -49,19 +49,28 @@ func getImageDimension(imagePath string) (int, int) {
 	return image.Width, image.Height
 }
 
+// Default location of this file when run in the Docker container:
+var DEFAULT_CONFIG string = "/go/src/app/devel-config.yml"
+
 func main() {
 
-	// Load the config file which we assume to be the only argument given on the CLI.
-	if len(os.Args) != 2 {
-		fmt.Printf("Must specify config a gophoto config file on CLI.\n")
+	// Load the config file which we assume to be the only argument given on the CLI,
+	// or the default file location in the Docker container if it exists.
+	var configFile string = ""
+	if len(os.Args) == 2 {
+		configFile, _ = filepath.Abs(os.Args[1])
+	} else if _, err := os.Stat(DEFAULT_CONFIG); len(os.Args) < 2 && err == nil {
+		configFile = DEFAULT_CONFIG
+	} else {
+		fmt.Printf("No config file given on CLI or in default location: %s", DEFAULT_CONFIG)
 		os.Exit(1)
 	}
-	configFile, _ := filepath.Abs(os.Args[1])
+
 	fmt.Printf("Loading config from: %s\n", configFile)
 	config.LoadConfig(configFile)
 
 	fmt.Printf("Hello, world.\n")
-	importDir := "/home/dev/Photos/2015/11"
+	importDir := "/import"
 	err := filepath.Walk(importDir, checkFile)
 	fmt.Printf("Walk returned: %v\n", err)
 

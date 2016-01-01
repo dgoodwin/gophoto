@@ -1,0 +1,11 @@
+db:
+  image: postgres
+gophoto:
+  build: .
+  ports:
+    - "8080:8080"
+  volumes:
+    - /home/dev/Photos/2015/11/:/import:Z
+  links:
+    - db
+
