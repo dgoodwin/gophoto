@@ -18,14 +18,17 @@ Build a quick and dirty webapp which can import files from disk into a database,
 
 Preferred method of deployment is within a Docker container. A Docker compose configuration is provided to quickly build the container from source and launch with an accompanying PostgreSQL database. docker-compose can be used to quickly teardown and recreate this environment.
 
+TODO: This is temporary but make sure you edit docker-compose.yml to point to a directory on your system with some photos to import.
+
 ```
 $ sudo docker-compose build
 $ sudo docker-compose up -d
+$ sudo docker-compose run --rm gophoto goose up
 ```
 
 Use the `docker logs` command on each container to view activity and logging.
 
-Use `docker-compose rm` to destroy the environment completely.
+Use `docker-compose stop && docker-compose rm` to destroy the environment completely.
 
 # Running From Source
 

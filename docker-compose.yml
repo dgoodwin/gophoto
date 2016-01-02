@@ -1,5 +1,7 @@
 db:
   image: postgres
+  environment:
+      POSTGRES_DB: gophoto
 gophoto:
   build: .
   ports:
