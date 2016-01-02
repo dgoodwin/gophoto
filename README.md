@@ -30,6 +30,8 @@ Use the `docker logs` command on each container to view activity and logging.
 
 Use `docker-compose stop && docker-compose rm` to destroy the environment completely.
 
+Use `docker exec -ti gophoto_db_1 psql -U postgres gophoto` to access the database manually.
+
 # Running From Source
 
 You probably don't want to do this...
