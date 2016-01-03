@@ -1,4 +1,0 @@
-storage:
-    backend: fileSystem
-    path: ./storage/
-assetspath: ./public

@@ -3,11 +3,13 @@ package config
 import (
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
+	"os"
 )
 
 type GophotoConfig struct {
 	AssetsPath string `yaml:"assetspath"`
 	Storage    Storage
+	Database   Database
 }
 
 type Storage struct {
@@ -15,8 +17,12 @@ type Storage struct {
 	Path    string
 }
 
-func LoadConfig(path string) GophotoConfig {
-	yamlFile, err := ioutil.ReadFile(path)
+type Database struct {
+	Open string
+}
+
+func LoadConfig(configPath string) GophotoConfig {
+	yamlFile, err := ioutil.ReadFile(configPath)
 
 	if err != nil {
 		panic(err)
@@ -28,5 +34,9 @@ func LoadConfig(path string) GophotoConfig {
 	if err != nil {
 		panic(err)
 	}
+
+	// Expand any environment variables in the database string:
+	cfg.Database.Open = os.ExpandEnv(cfg.Database.Open)
+
 	return cfg
 }

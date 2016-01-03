@@ -1,11 +1,13 @@
 package main
 
 import (
+	"database/sql"
 	"fmt"
 	"github.com/dgoodwin/gophoto/config"
 	"github.com/dgoodwin/gophoto/handlers"
 	"github.com/dgoodwin/gophoto/importer"
 	"github.com/gorilla/mux"
+	_ "github.com/lib/pq"
 	_ "image/jpeg"
 	_ "image/png"
 	"log"
@@ -15,7 +17,7 @@ import (
 )
 
 // Default location of this file when run in the Docker container:
-var DEFAULT_CONFIG string = "/go/src/app/devel-config.yml"
+var DEFAULT_CONFIG string = "/go/src/app/docker-config.yml"
 
 func main() {
 
@@ -32,11 +34,29 @@ func main() {
 	}
 
 	fmt.Printf("Loading config from: %s\n", configFile)
-	config.LoadConfig(configFile)
+	cfg := config.LoadConfig(configFile)
+
+	// Establish a database connection:
+	// Re-use the Goose dbconf.yml for the open string:
+	db, err := sql.Open("postgres", cfg.Database.Open)
+	fmt.Printf("Created db: %s\n", db)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	//age := 21
+	//rows, err := db.Query("SELECT name FROM users WHERE age = $1", age)
+	var newPhotoId int
+	err = db.QueryRow(`INSERT INTO media(filename, url, res_x, res_y, size)
+		VALUES('something.jpg', '/something.jpg', 1200, 1024, 5019328) RETURNING id`).Scan(&newPhotoId)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Printf("Created new photo: %d\n", newPhotoId)
 
 	fmt.Printf("Hello, world.\n")
 	importDir := "/import"
-	err := filepath.Walk(importDir, importer.CheckFile)
+	err = filepath.Walk(importDir, importer.CheckFile)
 	fmt.Printf("Walk returned: %v\n", err)
 
 	r := mux.NewRouter()
