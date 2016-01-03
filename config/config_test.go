@@ -4,7 +4,7 @@ import "testing"
 import "strings"
 
 func TestLoadSimpleConfig(t *testing.T) {
-	cfg := LoadConfig("../docker-config.yml")
+	cfg := LoadConfig("../gophoto-docker.yml")
 	if cfg.AssetsPath != "./public" {
 		t.Errorf("Unexpected asset path: '%s' != '%s'", cfg.AssetsPath, "./public")
 	}

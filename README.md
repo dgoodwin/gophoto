@@ -34,17 +34,50 @@ Use `docker exec -ti gophoto_db_1 psql -U postgres gophoto` to access the databa
 
 # Running From Source
 
-You probably don't want to do this...
+You probably don't want to do this unless you're looking to actually hack on
+the code and find the docker method above too slow. (which it probably is for
+rapid development)
 
-Ensure you have GOPATH environment variable setup correctly.
+Ensure you have your go workspace and GOPATH environment variable setup correctly.
+
+Compile the project:
 
 ```
-$ mkdir -p $GOPATH/src/github.com/dgoodwin/gophoto/.
+$ mkdir -p $GOPATH/src/github.com/dgoodwin/gophoto/
 $ git clone git@github.com:dgoodwin/gophoto.git $GOPATH/src/github.com/dgoodwin/gophoto/
 $ cd $GOPATH/src/github.com/dgoodwin/gophoto/
 $ go get
 $ go install github.com/dgoodwin/gophoto
-$ gophoto [CONFIGPATH]
+```
+
+Install goose for managing the database schema, launch postgresql in a
+container (or use another server, but you will need to update dbconf.yml
+appropriately), create the database and populate schema:
+
+```
+$ go get bitbucket.org/liamstask/goose/cmd/goose
+$ docker run --name postgres-dev -e POSTGRES_PASSWORD=random --restart=always -p 15432:5432 -d postgres
+$ PGPASSWORD="random" createdb -U postgres -h localhost -p 15432 gophoto
+$ goose -env local up
+```
+
+Edit a copy of the gophoto-docker.yml for configuration:
+
+```
+$ cat gophoto-local.yml
+storage:
+    backend: fileSystem
+    path: ./storage/
+assetspath: ./public
+importpath: /home/dev/Photos/2015/12/
+database:
+    open: user=postgres dbname=gophoto sslmode=disable host=localhost port=15432 password=random
+```
+
+And finally launch the app:
+
+```
+$ gophoto gophoto-local.yml
 ```
 
 # Running Tests

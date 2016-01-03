@@ -1,3 +1,6 @@
 development:
     driver: postgres
     open: user=postgres dbname=gophoto sslmode=disable host=$DB_PORT_5432_TCP_ADDR port=$DB_PORT_5432_TCP_PORT
+local:
+    driver: postgres
+    open: user=postgres dbname=gophoto sslmode=disable host=localhost port=15432 password=random

@@ -17,7 +17,7 @@ import (
 )
 
 // Default location of this file when run in the Docker container:
-var DEFAULT_CONFIG string = "/go/src/app/docker-config.yml"
+var DEFAULT_CONFIG string = "/go/src/app/gophoto-docker.yml"
 
 func main() {
 
@@ -55,8 +55,7 @@ func main() {
 	fmt.Printf("Created new photo: %d\n", newPhotoId)
 
 	fmt.Printf("Hello, world.\n")
-	importDir := "/import"
-	err = filepath.Walk(importDir, importer.CheckFile)
+	err = filepath.Walk(cfg.ImportPath, importer.CheckFile)
 	fmt.Printf("Walk returned: %v\n", err)
 
 	r := mux.NewRouter()
