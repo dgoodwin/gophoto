@@ -55,6 +55,7 @@ func main() {
 	fmt.Printf("Created new photo: %d\n", newPhotoId)
 
 	fmt.Printf("Hello, world.\n")
+	fmt.Printf("Scanning for photos in: %s\n", cfg.ImportPath)
 	err = filepath.Walk(cfg.ImportPath, importer.CheckFile)
 	fmt.Printf("Walk returned: %v\n", err)
 

@@ -7,8 +7,8 @@ import (
 )
 
 type GophotoConfig struct {
-	AssetsPath string `yaml:"assetspath"`
-	ImportPath string `yaml:"importpath"`
+	AssetsPath string `yaml:"assetsPath"`
+	ImportPath string `yaml:"importPath"`
 	Storage    Storage
 	Database   Database
 }

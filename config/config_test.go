@@ -19,6 +19,11 @@ func TestLoadSimpleConfig(t *testing.T) {
 			cfg.Storage.Path, "./storage/")
 	}
 
+	if cfg.ImportPath != "/import/" {
+		t.Errorf("Unexpected import path: '%s' != '%s'",
+			cfg.ImportPath, "/import/")
+	}
+
 	if !strings.Contains(cfg.Database.Open, "user=postgres") ||
 		!strings.Contains(cfg.Database.Open, "dbname=gophoto") {
 		t.Errorf("Unexpected database open: '%s'", cfg.Database.Open)

@@ -1,7 +1,7 @@
 storage:
     backend: fileSystem
     path: ./storage/
-assetspath: ./public
+assetsPath: ./public
 importPath: /import/
 database:
     open: user=postgres dbname=gophoto sslmode=disable host=$DB_PORT_5432_TCP_ADDR port=$DB_PORT_5432_TCP_PORT
