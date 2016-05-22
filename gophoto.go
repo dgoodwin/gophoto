@@ -46,17 +46,23 @@ func main() {
 
 	//age := 21
 	//rows, err := db.Query("SELECT name FROM users WHERE age = $1", age)
-	var newPhotoId int
-	err = db.QueryRow(`INSERT INTO media(filename, url, res_x, res_y, size)
-		VALUES('something.jpg', '/something.jpg', 1200, 1024, 5019328) RETURNING id`).Scan(&newPhotoId)
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Printf("Created new photo: %d\n", newPhotoId)
+	/*
+		var newPhotoId int
+			err = db.QueryRow(`INSERT INTO media(filename, url, res_x, res_y, size)
+				VALUES('something.jpg', '/something.jpg', 1200, 1024, 5019328) RETURNING id`).Scan(&newPhotoId)
+			if err != nil {
+				log.Fatal(err)
+			}
+			fmt.Printf("Created new photo: %d\n", newPhotoId)
+	*/
 
 	fmt.Printf("Hello, world.\n")
 	fmt.Printf("Scanning for photos in: %s\n", cfg.ImportPath)
-	err = filepath.Walk(cfg.ImportPath, importer.CheckFile)
+	var scanFunc = func(path string, f os.FileInfo, err error) error {
+		checkFileErr := importer.CheckFile(path, f, db)
+		return checkFileErr
+	}
+	err = filepath.Walk(cfg.ImportPath, scanFunc)
 	fmt.Printf("Walk returned: %v\n", err)
 
 	r := mux.NewRouter()
