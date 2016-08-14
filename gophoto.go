@@ -72,5 +72,5 @@ func main() {
 	// TODO: Point to a proper location for the data files? Use env var or config.
 	r.PathPrefix("/").Handler(http.FileServer(
 		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
-	log.Fatal(http.ListenAndServe(":8080", r))
+	log.Fatal(http.ListenAndServe(":8200", r))
 }
