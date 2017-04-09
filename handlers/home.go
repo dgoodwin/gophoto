@@ -6,5 +6,8 @@ import (
 )
 
 func Index(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Welcome!")
+	fmt.Fprintln(w, "Hello world!")
+}
+
+func Import(w http.ResponseWriter, r *http.Request) {
 }

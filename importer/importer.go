@@ -57,7 +57,6 @@ func saveMetadata(db *sql.DB, filename string, res_x int, res_y int, size int64)
 	if err != nil {
 		return err
 	}
-	fmt.Printf("stmt prepared\n")
 	err = stmt.QueryRow(filename, filename, res_x, res_y, size).Scan(&newPhotoId)
 	if err != nil {
 		return err
