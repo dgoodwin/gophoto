@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/dgoodwin/gophoto/config"
 	"github.com/dgoodwin/gophoto/server/handlers"
+	"github.com/dgoodwin/gophoto/server/handlers/api"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -50,7 +51,10 @@ func RunServer(cmd *cobra.Command, args []string) {
 	}
 
 	r := mux.NewRouter()
+
 	r.HandleFunc("/", handlers.Index)
+
+	r.HandleFunc("/api/v1/media", api.MediaPost).Methods("POST")
 
 	// If nothing else has matched attempt to serve a static file:
 	// TODO: Point to a proper location for the data files? Use env var or config.
