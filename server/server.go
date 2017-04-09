@@ -6,13 +6,13 @@ import (
 	"github.com/dgoodwin/gophoto/config"
 	"github.com/dgoodwin/gophoto/handlers"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
 	_ "github.com/lib/pq"
 	"github.com/spf13/cobra"
 
 	_ "image/jpeg"
 	_ "image/png"
-	"log"
 	"net/http"
 	"os"
 	"path/filepath"
@@ -23,7 +23,8 @@ var DEFAULT_CONFIG string = "/go/src/app/gophoto-docker.yml"
 
 func RunServer(cmd *cobra.Command, args []string) {
 
-	fmt.Println("Launch GoPhoto server...")
+	log.Infoln("Launching GoPhoto server")
+	log.SetLevel(log.DebugLevel)
 
 	// Load the config file which we assume to be the only argument given on the CLI,
 	// or the default file location in the Docker container if it exists.
@@ -37,13 +38,13 @@ func RunServer(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	fmt.Printf("Loading config from: %s\n", configFile)
+	log.Infof("Loading config from: %s\n", configFile)
 	cfg := config.LoadConfig(configFile)
 
 	// Establish a database connection:
 	// Re-use the Goose dbconf.yml for the open string:
 	db, err := sql.Open("postgres", cfg.Database.Open)
-	fmt.Printf("Created db: %s\n", db)
+	log.Debugf("Created db: %s\n", db)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -56,4 +57,5 @@ func RunServer(cmd *cobra.Command, args []string) {
 	r.PathPrefix("/").Handler(http.FileServer(
 		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
 	log.Fatal(http.ListenAndServe(":8200", r))
+	log.Infoln("Listening on port 8200")
 }
