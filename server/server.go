@@ -4,7 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgoodwin/gophoto/config"
-	"github.com/dgoodwin/gophoto/handlers"
+	"github.com/dgoodwin/gophoto/server/handlers"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -56,6 +56,7 @@ func RunServer(cmd *cobra.Command, args []string) {
 	// TODO: Point to a proper location for the data files? Use env var or config.
 	r.PathPrefix("/").Handler(http.FileServer(
 		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
+
 	log.Fatal(http.ListenAndServe(":8200", r))
 	log.Infoln("Listening on port 8200")
 }
