@@ -5,14 +5,22 @@ If this project were to not collapse in a sea of apathy and disinterest, which i
   * Built to handle a lifetime's worth of photos.
   * Able to browse quickly and easily by date or albums.
   * Content stored in original quality.
-  * Strong sharing options including private links.
+  * Strong sharing options including private links, and a public feed for things you flag as such.
   * Rich web UI for organizing.
-  * Possibly eventual video support.
-  * Able to upload (or auto-upload) from Android and Shotwell.
+  * Possibly video support someday.
+  * Able to upload (or auto-upload) from Android and Shotwell. (or with a CLI binary)
+  * Federation via defined open standards.
 
-# Current Status
+# Current Goals
 
-Build a quick and dirty webapp which can import files from disk into a database, generate some thumbnails, expose a REST API for those photos and their thumbnails, and then see how hard it would be to build a responsive utilitarian Javascript UI to view them.
+Quick and dirty webapp exposing a REST API which can upload and query photos.
+Thumbnails generated on upload, and everything should be stored in S3.
+(possibly bring your own credentials)
+
+Minimal client binary that can search a directory recursively and upload all
+the images it finds, if they haven't been uploaded already.
+
+Minimal JS UI that renders image thumbnails, and loads more as you scroll.
 
 # Running In Docker
 
@@ -47,7 +55,7 @@ $ mkdir -p $GOPATH/src/github.com/dgoodwin/gophoto/
 $ git clone git@github.com:dgoodwin/gophoto.git $GOPATH/src/github.com/dgoodwin/gophoto/
 $ cd $GOPATH/src/github.com/dgoodwin/gophoto/
 $ go get
-$ go install github.com/dgoodwin/gophoto
+$ go install ./...
 ```
 
 Install goose for managing the database schema, launch postgresql in a
@@ -77,7 +85,7 @@ database:
 And finally launch the app:
 
 ```
-$ gophoto gophoto-local.yml
+$ gophoto serve gophoto-local.yml
 ```
 
 # Running Tests
