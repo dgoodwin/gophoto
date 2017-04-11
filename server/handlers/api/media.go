@@ -5,6 +5,8 @@ import (
 	"io/ioutil"
 	"net/http"
 
+	"github.com/dgoodwin/gophoto/config"
+
 	log "github.com/Sirupsen/logrus"
 )
 
@@ -14,10 +16,14 @@ type Media struct {
 	Content     []byte
 }
 
+type MediaHandler struct {
+	Cfg config.GophotoConfig
+}
+
 // TODO: Probably a lot of work to come here. Currently this accepts JSON with
 // b64 encoded content. Need to consider uploads from browser or curl, chunking,
 // etc.
-func MediaPost(w http.ResponseWriter, r *http.Request) {
+func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	log.WithFields(log.Fields{
 		"method": r.Method,
 		"len":    r.ContentLength,
