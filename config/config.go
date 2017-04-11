@@ -8,7 +8,6 @@ import (
 
 type GophotoConfig struct {
 	AssetsPath string `yaml:"assetsPath"`
-	ImportPath string `yaml:"importPath"`
 	Storage    Storage
 	Database   Database
 }

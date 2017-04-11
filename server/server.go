@@ -45,7 +45,7 @@ func RunServer(cmd *cobra.Command, args []string) {
 	// Establish a database connection:
 	// Re-use the Goose dbconf.yml for the open string:
 	db, err := sql.Open("postgres", cfg.Database.Open)
-	log.Debugf("Created db: %s\n", db)
+	log.Debugf("Created db connection: %s\n", db)
 	if err != nil {
 		log.Fatal(err)
 	}

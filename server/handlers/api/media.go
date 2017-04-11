@@ -2,6 +2,7 @@ package api
 
 import (
 	"encoding/json"
+	"io/ioutil"
 	"net/http"
 
 	log "github.com/Sirupsen/logrus"
@@ -13,13 +14,15 @@ type Media struct {
 	Content     []byte
 }
 
+// TODO: Probably a lot of work to come here. Currently this accepts JSON with
+// b64 encoded content. Need to consider uploads from browser or curl, chunking,
+// etc.
 func MediaPost(w http.ResponseWriter, r *http.Request) {
-	reqLog := log.WithFields(log.Fields{
+	log.WithFields(log.Fields{
 		"method": r.Method,
 		"len":    r.ContentLength,
-	})
+	}).Infoln("handling request")
 
-	reqLog.Infoln("MediaPost")
 	if r.Body == nil {
 		http.Error(w, "no body in request", http.StatusBadRequest)
 		return
@@ -38,7 +41,13 @@ func MediaPost(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	reqLog.Infof("Uploaded file: %s", v.Name)
+	log.Infof("Uploaded file: %s", v.Name)
+
+	if err := ioutil.WriteFile("/tmp/gophoto/file.jpg", v.Content, 0644); err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	/*
 		path := mux.Params(r).ByName("path")
