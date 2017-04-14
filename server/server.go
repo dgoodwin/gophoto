@@ -40,7 +40,7 @@ func RunServer(cmd *cobra.Command, args []string) {
 	}
 
 	log.Infof("Loading config from: %s\n", configFile)
-	cfg := config.LoadConfig(configFile)
+	cfg := config.LoadConfigFile(configFile)
 
 	// Establish a database connection:
 	// Re-use the Goose dbconf.yml for the open string:

@@ -1,5 +1,4 @@
-storage:
-    backend: fileSystem
+localStorage:
     path: ./storage/
 assetsPath: ./public
 importPath: /import/

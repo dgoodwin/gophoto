@@ -7,21 +7,25 @@ import (
 )
 
 type GophotoConfig struct {
-	AssetsPath string `yaml:"assetsPath"`
-	Storage    Storage
-	Database   Database
+	AssetsPath   string `yaml:"assetsPath"`
+	Database     Database
+	LocalStorage *LocalStorage `yaml:"localStorage"`
+	S3Storage    *S3Storage    `yaml:"s3Storage"`
 }
 
-type Storage struct {
-	Backend string
-	Path    string
+type LocalStorage struct {
+	Path string
+}
+
+// TODO:
+type S3Storage struct {
 }
 
 type Database struct {
 	Open string
 }
 
-func LoadConfig(configPath string) GophotoConfig {
+func LoadConfigFile(configPath string) GophotoConfig {
 	yamlFile, err := ioutil.ReadFile(configPath)
 
 	if err != nil {
