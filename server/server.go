@@ -26,8 +26,8 @@ var DEFAULT_CONFIG string = "/go/src/app/gophoto-docker.yml"
 
 func RunServer(cmd *cobra.Command, args []string) {
 
-	log.Infoln("Launching GoPhoto server")
 	log.SetLevel(log.DebugLevel)
+	log.Infoln("Launching GoPhoto server")
 
 	// Load the config file which we assume to be the only argument given on the CLI,
 	// or the default file location in the Docker container if it exists.

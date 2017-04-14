@@ -1,9 +1,13 @@
 package config
 
 import (
+	"errors"
+	"fmt"
 	"gopkg.in/yaml.v2"
 	"io/ioutil"
 	"os"
+
+	"golang.org/x/sys/unix"
 )
 
 type GophotoConfig struct {
@@ -11,6 +15,7 @@ type GophotoConfig struct {
 	Database     Database
 	LocalStorage *LocalStorage `yaml:"localStorage"`
 	S3Storage    *S3Storage    `yaml:"s3Storage"`
+	WorkDirPath  string
 }
 
 type LocalStorage struct {
@@ -43,4 +48,17 @@ func LoadConfigFile(configPath string) GophotoConfig {
 	cfg.Database.Open = os.ExpandEnv(cfg.Database.Open)
 
 	return cfg
+}
+
+func validateConfig(cfg *GophotoConfig) error {
+	if cfg.WorkDirPath == "" {
+		return errors.New("no workDirPath specified in config")
+	}
+	if _, err := os.Stat(cfg.WorkDirPath); os.IsNotExist(err) {
+		return errors.New(fmt.Sprintf("workDirPath does not exist: %s", cfg.WorkDirPath))
+	}
+	if unix.Access(cfg.WorkDirPath, unix.W_OK) != nil {
+		return errors.New(fmt.Sprintf("workDirPath is not writable: %s", cfg.WorkDirPath))
+	}
+	return nil
 }
