@@ -6,6 +6,7 @@ import (
 	"net/http"
 
 	"github.com/dgoodwin/gophoto/config"
+	"github.com/dgoodwin/gophoto/server/importer"
 
 	log "github.com/Sirupsen/logrus"
 )
@@ -17,7 +18,8 @@ type Media struct {
 }
 
 type MediaHandler struct {
-	Cfg config.GophotoConfig
+	Cfg      config.GophotoConfig
+	Importer importer.Importer
 }
 
 // TODO: Probably a lot of work to come here. Currently this accepts JSON with

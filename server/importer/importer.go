@@ -58,8 +58,8 @@ func getImageDimension(imagePath string) (int, int) {
 // generation, stores metadata in the database, and forwards on to it's final
 // storage backend.
 type Importer struct {
-	db      *sql.DB
-	storage storage.StorageBackend
+	DB      *sql.DB
+	Storage storage.StorageBackend
 }
 
 // ImportFilePath imports a file from the local filesystem.
@@ -72,6 +72,11 @@ func (i Importer) ImportFilePath(filepath string) error {
 	width, height := getImageDimension(filepath)
 	fmt.Println("  Width:", width, "  Height:", height)
 
+	err = i.Storage.ImportFilePath(filepath)
+	if err != nil {
+		return err
+	}
+
 	err = i.saveMetadata(filepath, width, height, f.Size())
 	if err != nil {
 		return err
@@ -81,7 +86,7 @@ func (i Importer) ImportFilePath(filepath string) error {
 
 func (i Importer) saveMetadata(filename string, res_x int, res_y int, size int64) error {
 	var newPhotoId int
-	stmt, err := i.db.Prepare("INSERT INTO media(filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5) RETURNING id")
+	stmt, err := i.DB.Prepare("INSERT INTO media(filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5) RETURNING id")
 	if err != nil {
 		return err
 	}

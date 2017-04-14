@@ -6,6 +6,8 @@ import (
 	"github.com/dgoodwin/gophoto/config"
 	"github.com/dgoodwin/gophoto/server/handlers"
 	"github.com/dgoodwin/gophoto/server/handlers/api"
+	"github.com/dgoodwin/gophoto/server/importer"
+	"github.com/dgoodwin/gophoto/server/storage"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/gorilla/mux"
@@ -50,11 +52,16 @@ func RunServer(cmd *cobra.Command, args []string) {
 		log.Fatal(err)
 	}
 
+	var s storage.StorageBackend
+	s, err = storage.NewStorageBackend(cfg)
+
+	i := importer.Importer{DB: db, Storage: s}
+
 	r := mux.NewRouter()
 
 	r.HandleFunc("/", handlers.Index)
 
-	r.Handle("/api/v1/media", api.MediaHandler{Cfg: cfg}).Methods("POST")
+	r.Handle("/api/v1/media", api.MediaHandler{Cfg: cfg, Importer: i}).Methods("POST")
 
 	// If nothing else has matched attempt to serve a static file:
 	// TODO: Point to a proper location for the data files? Use env var or config.
