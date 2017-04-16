@@ -27,6 +27,23 @@ type MediaHandler struct {
 	Importer importer.Importer
 }
 
+/*
+Planned upload API:
+
+- POST /media
+  - accepts a list of media objects minus actual data
+  - requests upload permission
+  - returns a list of media entities including href where the data can be PUT
+  - validates checksum is unique, won't let you re-upload (in future may have override)
+  - generates a short unique ID for URL
+  - stores record in database
+  - unused records in db will be cleaned at some point in future if overdue for upload
+- PUT /media/ABCDEFGH
+  - now includes data
+  - can handle chunked uploads if user desires (future feature)
+  - can be either json with b64 encoded fields, or raw HTTP PUT with headers for metadata
+*/
+
 // TODO: Probably a lot of work to come here. Currently this accepts JSON with
 // b64 encoded content. Need to consider uploads from browser or curl, chunking,
 // etc.
@@ -90,7 +107,7 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "checksum mismatch", http.StatusBadRequest)
 			return
 		}
-		log.Info("Checksum validated")
+		log.Infoln("Checksum validated")
 	}
 
 	/*
