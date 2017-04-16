@@ -4,6 +4,8 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
+	"os"
+	"path/filepath"
 
 	"github.com/dgoodwin/gophoto/config"
 	"github.com/dgoodwin/gophoto/server/importer"
@@ -51,7 +53,23 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	log.Infof("Uploaded file: %s", v.Name)
 
-	if err := ioutil.WriteFile("/tmp/gophoto/file.jpg", v.Content, 0644); err != nil {
+	// Create a temporary directory for this upload in the working dir. Used to
+	// store the incoming file and generate thumbnails before we push to permanent
+	// storage.
+	tempUploadDir, err := ioutil.TempDir(h.Cfg.WorkDirPath, "upload-")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+	log.Infof("Created temporary upload dir: %s", tempUploadDir)
+	defer func() {
+		log.Infof("Cleaning up temporary upload dir: %s", tempUploadDir)
+		os.RemoveAll(tempUploadDir)
+	}()
+
+	uploadedFilePath := filepath.Join(tempUploadDir, v.Name)
+	log.Infof("Uploaded file: %s", uploadedFilePath)
+	if err := ioutil.WriteFile(uploadedFilePath, v.Content, 0644); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
