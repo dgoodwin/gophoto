@@ -1,6 +1,8 @@
 package api
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
 	"net/http"
@@ -17,6 +19,7 @@ type Media struct {
 	Name        string
 	Description string
 	Content     []byte
+	MD5         string
 }
 
 type MediaHandler struct {
@@ -73,6 +76,21 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
+	}
+
+	// Validate the MD5 checksum matches what the caller sent. For now, we won't
+	// consider it an error if no MD5 checksum was provided.
+	if v.MD5 != "" {
+		hasher := md5.New()
+		hasher.Write(v.Content)
+		reqChecksum := hex.EncodeToString(hasher.Sum(nil))
+		log.Debugf("Incoming data checksum: %s", reqChecksum)
+		log.Debugf("Caller specified checksum: %s", v.MD5)
+		if reqChecksum != v.MD5 {
+			http.Error(w, "checksum mismatch", http.StatusBadRequest)
+			return
+		}
+		log.Info("Checksum validated")
 	}
 
 	/*

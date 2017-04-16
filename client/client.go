@@ -20,7 +20,7 @@ func RunSync(cmd *cobra.Command, args []string) {
 		log.Fatalln(err)
 	}
 
-	v := api.Media{Name: "20170311_192038.jpg", Description: "my picture", Content: content}
+	v := api.Media{Name: "20170311_192038.jpg", Description: "my picture", Content: content, MD5: "789c6b4218f65047c184574dc584e19f"}
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(v); err != nil {
 		log.Fatalln(err)
