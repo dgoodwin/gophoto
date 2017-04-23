@@ -10,6 +10,7 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dgoodwin/gophoto/server/storage"
+	"github.com/rwcarlsen/goexif/exif"
 )
 
 /*
@@ -41,14 +42,14 @@ func isImage(path string) bool {
 }
 */
 
-func getImageDimension(imagePath string) (int, int, error) {
-	file, err := os.Open(imagePath)
+func getImageDimension(filepath string) (int, int, error) {
+	f, err := os.Open(filepath)
 	if err != nil {
 		return 0, 0, err
 	}
-	defer file.Close()
+	defer f.Close()
 
-	image, _, err := image.DecodeConfig(file)
+	image, _, err := image.DecodeConfig(f)
 	if err != nil {
 		return 0, 0, err
 	}
@@ -65,7 +66,7 @@ type Importer struct {
 
 // ImportFilePath imports a file from the local filesystem.
 func (i Importer) ImportFilePath(filepath string) error {
-	f, err := os.Stat(filepath)
+	fi, err := os.Stat(filepath)
 	if err != nil {
 		return err
 	}
@@ -75,30 +76,50 @@ func (i Importer) ImportFilePath(filepath string) error {
 		return err
 	}
 
+	exif, err := getExifData(filepath)
+	if err != nil {
+		return err
+	}
+	tm, _ := exif.DateTime()
+
 	err = i.Storage.ImportFilePath(filepath)
 	if err != nil {
 		return err
 	}
 
-	err = i.saveMetadata(filepath, width, height, f.Size())
+	err = i.saveMetadata(tm, filepath, width, height, fi.Size())
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (i Importer) saveMetadata(filename string, res_x int, res_y int, size int64) error {
+func (i Importer) saveMetadata(taken time.Time, filename string, res_x int, res_y int, size int64) error {
 	var newPhotoId int
 	stmt, err := i.DB.Prepare("INSERT INTO media(created, uploaded, filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id")
 	if err != nil {
 		return err
 	}
-	// TODO: extract exif timestamp:
-	uploadedTime := time.Now()
-	err = stmt.QueryRow(uploadedTime, uploadedTime, filename, filename, res_x, res_y, size).Scan(&newPhotoId)
+	err = stmt.QueryRow(taken, time.Now(), filename, filename, res_x, res_y, size).Scan(&newPhotoId)
 	if err != nil {
 		return err
 	}
 	log.Infof("Created new photo in db: %d", newPhotoId)
 	return nil
+}
+
+func getExifData(filepath string) (*exif.Exif, error) {
+	f, err := os.Open(filepath)
+	if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	// May want to just go straight to the CLI if this isn't reliable enough.
+	x, err := exif.Decode(f)
+	if err != nil {
+		return nil, err
+	}
+
+	return x, nil
 }
