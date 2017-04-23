@@ -108,7 +108,11 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		log.Infoln("Checksum validated")
+	} else {
+		log.Warnln("No MD5 checksum specified in upload request")
 	}
+
+	h.Importer.ImportFilePath(uploadedFilePath)
 
 	/*
 		path := mux.Params(r).ByName("path")
@@ -122,5 +126,6 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"url":"%s"}`, url)
 	*/
+
 	return
 }

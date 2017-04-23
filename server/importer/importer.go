@@ -8,6 +8,7 @@ import (
 	_ "image/png"
 	"os"
 
+	log "github.com/Sirupsen/logrus"
 	"github.com/dgoodwin/gophoto/server/storage"
 )
 
@@ -70,7 +71,6 @@ func (i Importer) ImportFilePath(filepath string) error {
 	}
 
 	width, height := getImageDimension(filepath)
-	fmt.Println("  Width:", width, "  Height:", height)
 
 	err = i.Storage.ImportFilePath(filepath)
 	if err != nil {
@@ -94,6 +94,6 @@ func (i Importer) saveMetadata(filename string, res_x int, res_y int, size int64
 	if err != nil {
 		return err
 	}
-	fmt.Printf("Created new photo: %d\n", newPhotoId)
+	log.Infof("Created new photo in db: %d", newPhotoId)
 	return nil
 }
