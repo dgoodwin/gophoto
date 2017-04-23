@@ -112,7 +112,11 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		log.Warnln("No MD5 checksum specified in upload request")
 	}
 
-	h.Importer.ImportFilePath(uploadedFilePath)
+	if err := h.Importer.ImportFilePath(uploadedFilePath); err != nil {
+		log.Error(err)
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
 
 	/*
 		path := mux.Params(r).ByName("path")

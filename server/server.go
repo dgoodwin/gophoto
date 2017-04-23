@@ -41,7 +41,7 @@ func RunServer(cmd *cobra.Command, args []string) {
 		os.Exit(1)
 	}
 
-	log.Infof("Loading config from: %s\n", configFile)
+	log.Infof("Loading config from: %s", configFile)
 	cfg := config.LoadConfigFile(configFile)
 
 	// Establish a database connection:

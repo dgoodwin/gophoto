@@ -2,11 +2,11 @@ package importer
 
 import (
 	"database/sql"
-	"fmt"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
+	"time"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/dgoodwin/gophoto/server/storage"
@@ -41,18 +41,18 @@ func isImage(path string) bool {
 }
 */
 
-func getImageDimension(imagePath string) (int, int) {
+func getImageDimension(imagePath string) (int, int, error) {
 	file, err := os.Open(imagePath)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%v\n", err)
+		return 0, 0, err
 	}
 	defer file.Close()
 
 	image, _, err := image.DecodeConfig(file)
 	if err != nil {
-		fmt.Fprintf(os.Stderr, "%s: %v\n", imagePath, err)
+		return 0, 0, err
 	}
-	return image.Width, image.Height
+	return image.Width, image.Height, nil
 }
 
 // Importer handles an incoming file being uploaded, orchestrates thumbnail
@@ -70,7 +70,10 @@ func (i Importer) ImportFilePath(filepath string) error {
 		return err
 	}
 
-	width, height := getImageDimension(filepath)
+	width, height, err := getImageDimension(filepath)
+	if err != nil {
+		return err
+	}
 
 	err = i.Storage.ImportFilePath(filepath)
 	if err != nil {
@@ -86,11 +89,13 @@ func (i Importer) ImportFilePath(filepath string) error {
 
 func (i Importer) saveMetadata(filename string, res_x int, res_y int, size int64) error {
 	var newPhotoId int
-	stmt, err := i.DB.Prepare("INSERT INTO media(filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5) RETURNING id")
+	stmt, err := i.DB.Prepare("INSERT INTO media(created, uploaded, filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id")
 	if err != nil {
 		return err
 	}
-	err = stmt.QueryRow(filename, filename, res_x, res_y, size).Scan(&newPhotoId)
+	// TODO: extract exif timestamp:
+	uploadedTime := time.Now()
+	err = stmt.QueryRow(uploadedTime, uploadedTime, filename, filename, res_x, res_y, size).Scan(&newPhotoId)
 	if err != nil {
 		return err
 	}
