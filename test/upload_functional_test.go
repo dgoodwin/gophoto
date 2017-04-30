@@ -1,6 +1,8 @@
 package functionaltest
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"io"
 	"net/http"
 	"net/url"
@@ -71,6 +73,23 @@ func syncTestPhotos() {
 			}
 		} else {
 			log.Infoln("Test photo already exists:", expectedPath)
+		}
+
+		// Make sure the checksum matches:
+		hasher := md5.New()
+		f, err := os.Open(expectedPath)
+		if err != nil {
+			log.Fatal(err)
+		}
+		if _, err := io.Copy(hasher, f); err != nil {
+			log.Fatal(err)
+		}
+
+		actualChecksum := hex.EncodeToString(hasher.Sum(nil))
+		if actualChecksum != p.md5sum {
+			log.Fatalf("checksum mismatch on %s: expected=%s got=%s", expectedPath, p.md5sum, actualChecksum)
+		} else {
+			log.Infoln("Checksum validated:", p.md5sum)
 		}
 	}
 }
