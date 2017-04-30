@@ -1,3 +1,4 @@
 **/*.swp
 bin/
 pkg/
+test/photo-test-suite/
