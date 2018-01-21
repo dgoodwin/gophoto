@@ -21,9 +21,10 @@ import (
 	"path/filepath"
 )
 
-// Default location of this file when run in the Docker container:
-var DEFAULT_CONFIG string = "/go/src/app/gophoto-docker.yml"
+// defaultConfig is the location of the config file when run in the Docker container:
+var defaultConfig = "/go/src/app/gophoto-docker.yml"
 
+// RunServer starts the gophoto server components.
 func RunServer(cmd *cobra.Command, args []string) {
 
 	log.SetLevel(log.DebugLevel)
@@ -31,13 +32,13 @@ func RunServer(cmd *cobra.Command, args []string) {
 
 	// Load the config file which we assume to be the only argument given on the CLI,
 	// or the default file location in the Docker container if it exists.
-	var configFile string = ""
+	var configFile string
 	if len(args) == 1 {
 		configFile, _ = filepath.Abs(args[0])
-	} else if _, err := os.Stat(DEFAULT_CONFIG); len(os.Args) < 2 && err == nil {
-		configFile = DEFAULT_CONFIG
+	} else if _, err := os.Stat(defaultConfig); len(os.Args) < 2 && err == nil {
+		configFile = defaultConfig
 	} else {
-		fmt.Printf("No config file given on CLI or in default location: %s\n", DEFAULT_CONFIG)
+		fmt.Printf("No config file given on CLI or in default location: %s\n", defaultConfig)
 		os.Exit(1)
 	}
 
@@ -68,6 +69,6 @@ func RunServer(cmd *cobra.Command, args []string) {
 	r.PathPrefix("/").Handler(http.FileServer(
 		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
 
-	log.Fatal(http.ListenAndServe(":8200", r))
 	log.Infoln("Listening on port 8200")
+	log.Fatal(http.ListenAndServe(":8200", r))
 }
