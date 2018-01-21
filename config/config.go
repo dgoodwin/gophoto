@@ -16,6 +16,7 @@ type GophotoConfig struct {
 	LocalStorage *LocalStorage `yaml:"localStorage"`
 	S3Storage    *S3Storage    `yaml:"s3Storage"`
 	WorkDirPath  string
+	APIPort      int `yaml:"apiPort"`
 }
 
 type LocalStorage struct {
@@ -59,6 +60,9 @@ func validateConfig(cfg *GophotoConfig) error {
 	}
 	if unix.Access(cfg.WorkDirPath, unix.W_OK) != nil {
 		return errors.New(fmt.Sprintf("workDirPath is not writable: %s", cfg.WorkDirPath))
+	}
+	if cfg.APIPort == 0 {
+		return errors.New(fmt.Sprintf("apiPort not specified in config"))
 	}
 	return nil
 }

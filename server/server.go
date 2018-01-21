@@ -44,7 +44,13 @@ func RunServer(cmd *cobra.Command, args []string) {
 
 	log.Infof("Loading config from: %s", configFile)
 	cfg := config.LoadConfigFile(configFile)
+	log.Infoln(cfg)
 
+	srv := buildServer(cfg)
+	log.Fatal(srv.ListenAndServe())
+}
+
+func buildServer(cfg config.GophotoConfig) *http.Server {
 	// Establish a database connection:
 	// Re-use the Goose dbconf.yml for the open string:
 	db, err := sql.Open("postgres", cfg.Database.Open)
@@ -69,6 +75,6 @@ func RunServer(cmd *cobra.Command, args []string) {
 	r.PathPrefix("/").Handler(http.FileServer(
 		http.Dir("/home/dev/go/src/github.com/dgoodwin/gophoto/public/")))
 
-	log.Infoln("Listening on port 8200")
-	log.Fatal(http.ListenAndServe(":8200", r))
+	log.Infof("Listening on port %d", cfg.APIPort)
+	return &http.Server{Addr: fmt.Sprintf(":%d", cfg.APIPort), Handler: r}
 }

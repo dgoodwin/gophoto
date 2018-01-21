@@ -1,4 +1,4 @@
-package functionaltest
+package server
 
 import (
 	"crypto/md5"
@@ -96,5 +96,9 @@ func syncTestPhotos() {
 
 func TestSomething(t *testing.T) {
 	syncTestPhotos()
-	t.Error("you're screwed")
+	// Bring up a server
+	/*
+		for _, p := range testSuitePhotos {
+		}
+	*/
 }

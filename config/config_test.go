@@ -95,6 +95,7 @@ func InitTestConfig() (*GophotoConfig, string, error) {
 		Database:     Database{Open: "user=postgres dbname=gophoto"},
 		LocalStorage: &LocalStorage{Path: "./storage"}, // TODO
 		WorkDirPath:  dir,
+		APIPort:      8200,
 	}
 
 	return cfg, dir, nil
