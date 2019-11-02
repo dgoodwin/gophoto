@@ -54,7 +54,7 @@ func buildServer(cfg config.GophotoConfig) *http.Server {
 	// Establish a database connection:
 	// Re-use the Goose dbconf.yml for the open string:
 	db, err := sql.Open("postgres", cfg.Database.Open)
-	log.Debugf("Created db connection: %s", db)
+	log.Debugf("Created db connection: %v", db)
 	if err != nil {
 		log.Fatal(err)
 	}

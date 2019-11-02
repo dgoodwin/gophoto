@@ -21,6 +21,7 @@ Minimal client binary that can search a directory recursively and upload all
 the images it finds, if they haven't been uploaded already.
 
 Minimal JS UI that renders image thumbnails, and loads more as you scroll.
+Hopefully re-use a react photo gallery library.
 
 # Running In Docker
 

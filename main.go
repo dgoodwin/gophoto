@@ -21,7 +21,7 @@ func main() {
 		Run:   client.RunSync,
 	}
 
-	var rootCmd = &cobra.Command{Use: "app"}
+	var rootCmd = &cobra.Command{Use: "gophoto"}
 	rootCmd.AddCommand(cmdServe)
 	rootCmd.AddCommand(cmdSync)
 	rootCmd.Execute()
