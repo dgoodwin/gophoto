@@ -65,7 +65,7 @@ type Importer struct {
 }
 
 // ImportFilePath imports a file from the local filesystem.
-func (i Importer) ImportFilePath(filepath string) error {
+func (i Importer) ImportFilePath(filepath, checksum string) error {
 	fi, err := os.Stat(filepath)
 	if err != nil {
 		return err
@@ -87,20 +87,20 @@ func (i Importer) ImportFilePath(filepath string) error {
 		return err
 	}
 
-	err = i.saveMetadata(tm, filepath, width, height, fi.Size())
+	err = i.saveMetadata(tm, filepath, width, height, checksum, fi.Size())
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (i Importer) saveMetadata(taken time.Time, filename string, res_x int, res_y int, size int64) error {
+func (i Importer) saveMetadata(taken time.Time, filename string, res_x int, res_y int, checksum string, size int64) error {
 	var newPhotoId int
-	stmt, err := i.DB.Prepare("INSERT INTO media(created, uploaded, filename, url, res_x, res_y, size) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id")
+	stmt, err := i.DB.Prepare("INSERT INTO media(created, uploaded, filename, url, checksum, res_x, res_y, size) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id")
 	if err != nil {
 		return err
 	}
-	err = stmt.QueryRow(taken, time.Now(), filename, filename, res_x, res_y, size).Scan(&newPhotoId)
+	err = stmt.QueryRow(taken, time.Now(), filename, filename, checksum, res_x, res_y, size).Scan(&newPhotoId)
 	if err != nil {
 		return err
 	}

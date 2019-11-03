@@ -1,7 +1,7 @@
 package api
 
 import (
-	"crypto/md5"
+	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
 	"io/ioutil"
@@ -19,7 +19,8 @@ type Media struct {
 	Name        string
 	Description string
 	Content     []byte
-	MD5         string
+	// Checksum is a SHA1 checksum for the content of the file.
+	Checksum string
 }
 
 type MediaHandler struct {
@@ -95,24 +96,24 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	// Validate the MD5 checksum matches what the caller sent. For now, we won't
-	// consider it an error if no MD5 checksum was provided.
-	if v.MD5 != "" {
-		hasher := md5.New()
-		hasher.Write(v.Content)
-		reqChecksum := hex.EncodeToString(hasher.Sum(nil))
+	// Validate the checksum matches what the caller sent. For now, we won't
+	// consider it an error if no checksum was provided.
+	if v.Checksum != "" {
+		h := sha1.New()
+		h.Write(v.Content)
+		reqChecksum := hex.EncodeToString(h.Sum(nil))
 		log.Debugf("Incoming data checksum: %s", reqChecksum)
-		log.Debugf("Caller specified checksum: %s", v.MD5)
-		if reqChecksum != v.MD5 {
+		log.Debugf("Caller specified checksum: %s", v.Checksum)
+		if reqChecksum != v.Checksum {
 			http.Error(w, "checksum mismatch", http.StatusBadRequest)
 			return
 		}
 		log.Infoln("Checksum validated")
 	} else {
-		log.Warnln("No MD5 checksum specified in upload request")
+		log.Warnln("No checksum specified in upload request")
 	}
 
-	if err := h.Importer.ImportFilePath(uploadedFilePath); err != nil {
+	if err := h.Importer.ImportFilePath(uploadedFilePath, v.Checksum); err != nil {
 		log.Error(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return

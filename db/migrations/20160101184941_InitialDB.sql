@@ -7,6 +7,7 @@ CREATE TABLE media(
     uploaded TIMESTAMP WITH TIME ZONE NOT NULL,
     filename VARCHAR(255) NOT NULL,
     url VARCHAR(255) NOT NULL,
+    checksum VARCHAR(40) NOT NULL,
     res_x INTEGER NOT NULL,
     res_y INTEGER NOT NULL,
     size BIGINT NOT NULL

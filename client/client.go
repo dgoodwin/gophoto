@@ -20,12 +20,13 @@ func RunSync(cmd *cobra.Command, args []string) {
 		log.WithError(err).Fatal("error reading file")
 	}
 
-	// TODO: calculate md5, fix filename
-	v := api.Media{Name: "20170311_192038.jpg", Description: "my picture", Content: content, MD5: "789c6b4218f65047c184574dc584e19f"}
+	// TODO: calculate sha1, fix filename
+	v := api.Media{Name: "20170311_192038.jpg", Description: "my picture", Content: content, Checksum: "469c00f6204d08f362e2bb16c56396de1db4a14f"}
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(v); err != nil {
 		log.WithError(err).Fatal("error encoding file")
 	}
+	// TODO: configurable endpoint
 	req, err := http.NewRequest("POST", "http://localhost:8201/api/v1/media", &buf)
 	if err != nil {
 		// handle error
