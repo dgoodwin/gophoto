@@ -6,7 +6,7 @@ import (
 	"io/ioutil"
 	"net/http"
 
-	"github.com/dgoodwin/gophoto/server/handlers/api"
+	api "github.com/dgoodwin/gophoto/pkg/api/v1"
 
 	log "github.com/Sirupsen/logrus"
 	"github.com/spf13/cobra"

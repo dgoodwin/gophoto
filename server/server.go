@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"github.com/dgoodwin/gophoto/config"
+	"github.com/dgoodwin/gophoto/pkg/api/v1/dbclient"
 	"github.com/dgoodwin/gophoto/server/handlers"
 	"github.com/dgoodwin/gophoto/server/handlers/api"
 	"github.com/dgoodwin/gophoto/server/importer"
@@ -62,7 +63,8 @@ func buildServer(cfg config.GophotoConfig) *http.Server {
 	var s storage.StorageBackend
 	s, err = storage.NewStorageBackend(cfg)
 
-	i := importer.Importer{DB: db, Storage: s}
+	dbClient := dbclient.NewDBClient(db)
+	i := importer.NewImporter(dbClient, s)
 
 	r := mux.NewRouter()
 

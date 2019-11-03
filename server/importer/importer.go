@@ -1,14 +1,13 @@
 package importer
 
 import (
-	"database/sql"
 	"image"
 	_ "image/jpeg"
 	_ "image/png"
 	"os"
-	"time"
 
-	log "github.com/Sirupsen/logrus"
+	//log "github.com/Sirupsen/logrus"
+	"github.com/dgoodwin/gophoto/pkg/api/v1/dbclient"
 	"github.com/dgoodwin/gophoto/server/storage"
 	"github.com/rwcarlsen/goexif/exif"
 )
@@ -60,12 +59,16 @@ func getImageDimension(filepath string) (int, int, error) {
 // generation, stores metadata in the database, and forwards on to it's final
 // storage backend.
 type Importer struct {
-	DB      *sql.DB
-	Storage storage.StorageBackend
+	dbClient *dbclient.DBClient
+	storage  storage.StorageBackend
+}
+
+func NewImporter(dbClient *dbclient.DBClient, storage storage.StorageBackend) *Importer {
+	return &Importer{dbClient: dbClient, storage: storage}
 }
 
 // ImportFilePath imports a file from the local filesystem.
-func (i Importer) ImportFilePath(filepath, checksum string) error {
+func (i *Importer) ImportFilePath(filepath, checksum string) error {
 	fi, err := os.Stat(filepath)
 	if err != nil {
 		return err
@@ -82,29 +85,15 @@ func (i Importer) ImportFilePath(filepath, checksum string) error {
 	}
 	tm, _ := exif.DateTime()
 
-	err = i.Storage.ImportFilePath(filepath)
+	err = i.storage.ImportFilePath(filepath)
 	if err != nil {
 		return err
 	}
 
-	err = i.saveMetadata(tm, filepath, width, height, checksum, fi.Size())
+	err = i.dbClient.CreateMedia(tm, filepath, width, height, checksum, fi.Size())
 	if err != nil {
 		return err
 	}
-	return nil
-}
-
-func (i Importer) saveMetadata(taken time.Time, filename string, res_x int, res_y int, checksum string, size int64) error {
-	var newPhotoId int
-	stmt, err := i.DB.Prepare("INSERT INTO media(created, uploaded, filename, url, checksum, res_x, res_y, size) VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id")
-	if err != nil {
-		return err
-	}
-	err = stmt.QueryRow(taken, time.Now(), filename, filename, checksum, res_x, res_y, size).Scan(&newPhotoId)
-	if err != nil {
-		return err
-	}
-	log.Infof("Created new photo in db: %d", newPhotoId)
 	return nil
 }
 

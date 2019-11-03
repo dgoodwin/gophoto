@@ -10,22 +10,15 @@ import (
 	"path/filepath"
 
 	"github.com/dgoodwin/gophoto/config"
+	api "github.com/dgoodwin/gophoto/pkg/api/v1"
 	"github.com/dgoodwin/gophoto/server/importer"
 
 	log "github.com/Sirupsen/logrus"
 )
 
-type Media struct {
-	Name        string
-	Description string
-	Content     []byte
-	// Checksum is a SHA1 checksum for the content of the file.
-	Checksum string
-}
-
 type MediaHandler struct {
 	Cfg      config.GophotoConfig
-	Importer importer.Importer
+	Importer *importer.Importer
 }
 
 /*
@@ -67,7 +60,7 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 	*/
 
-	var v Media
+	var v api.Media
 	if err := json.NewDecoder(r.Body).Decode(&v); err != nil {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
