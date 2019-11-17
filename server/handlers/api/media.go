@@ -4,6 +4,7 @@ import (
 	"crypto/sha1"
 	"encoding/hex"
 	"encoding/json"
+	"fmt"
 	"io/ioutil"
 	"net/http"
 	"os"
@@ -11,6 +12,7 @@ import (
 
 	"github.com/dgoodwin/gophoto/config"
 	api "github.com/dgoodwin/gophoto/pkg/api/v1"
+	"github.com/dgoodwin/gophoto/pkg/api/v1/dbclient"
 	"github.com/dgoodwin/gophoto/server/importer"
 
 	log "github.com/Sirupsen/logrus"
@@ -19,6 +21,7 @@ import (
 type MediaHandler struct {
 	Cfg      config.GophotoConfig
 	Importer *importer.Importer
+	DBClient *dbclient.DBClient
 }
 
 /*
@@ -52,6 +55,25 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	switch method := r.Method; method {
+	case http.MethodPost:
+		h.serveCreate(w, r)
+		return
+	case http.MethodGet:
+		h.serveGet(w, r)
+		return
+	default:
+		msg := fmt.Sprintf("unsupported http method: %s", method)
+		log.Warn(msg)
+		http.Error(w, msg, http.StatusBadRequest)
+		return
+	}
+}
+
+func (h MediaHandler) serveCreate(w http.ResponseWriter, r *http.Request) {
+
+	// TODO: error if any unexpected fields are set or unset.
+
 	/*
 		content, err := ioutil.ReadAll(r.Body)
 		if err != nil {
@@ -65,7 +87,7 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
 	}
-	log.Infof("Uploaded file: %s", v.Name)
+	log.Infof("Uploaded file: %s", v.FileName)
 
 	// Create a temporary directory for this upload in the working dir. Used to
 	// store the incoming file and generate thumbnails before we push to permanent
@@ -81,7 +103,7 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		os.RemoveAll(tempUploadDir)
 	}()
 
-	uploadedFilePath := filepath.Join(tempUploadDir, v.Name)
+	uploadedFilePath := filepath.Join(tempUploadDir, v.FileName)
 	log.Infof("Uploaded file: %s", uploadedFilePath)
 	if err := ioutil.WriteFile(uploadedFilePath, v.Content, 0644); err != nil {
 		log.Error(err)
@@ -124,6 +146,29 @@ func (h MediaHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "application/json")
 		fmt.Fprintf(w, `{"url":"%s"}`, url)
 	*/
+
+	return
+}
+
+func (h MediaHandler) serveGet(w http.ResponseWriter, r *http.Request) {
+
+	media, err := h.DBClient.ListMedia()
+	if err != nil {
+		log.WithError(err).Error("error listing media")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	jsonOutput, err := json.Marshal(media)
+	if err != nil {
+		log.WithError(err).Error("error encoding media array as json")
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
+	w.WriteHeader(http.StatusOK)
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(jsonOutput)
 
 	return
 }

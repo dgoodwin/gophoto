@@ -21,7 +21,7 @@ func RunSync(cmd *cobra.Command, args []string) {
 	}
 
 	// TODO: calculate sha1, fix filename
-	v := api.Media{Name: "20170311_192038.jpg", Description: "my picture", Content: content, Checksum: "469c00f6204d08f362e2bb16c56396de1db4a14f"}
+	v := api.Media{FileName: "20170311_192038.jpg", Content: content, Checksum: "469c00f6204d08f362e2bb16c56396de1db4a14f"}
 	var buf bytes.Buffer
 	if err := json.NewEncoder(&buf).Encode(v); err != nil {
 		log.WithError(err).Fatal("error encoding file")
